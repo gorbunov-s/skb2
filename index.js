@@ -1,19 +1,27 @@
 import express from 'express';
 import cors from 'cors';
 
-const app = express();
-app.use(cors());
-app.get('/', (req, res) => {
-	res.json({
-		hello: 'JS World'
-	});
-});
+function canonize(username) {
+  const ure = new RegExp('@?(https?:)?(\/\/)?(www.?)?(([a-zA-Z0-9-.]*)[^\/]*\/)?([@]*)?([a-zA-Z0-9._]*)', 'i');
+  const nickname = username.match(ure)[7];
 
-app.get('/task2A', (req, res) => {
-    const sum = (+req.query.a || 0) + (+req.query.b || 0);
-    res.send(sum.toString());
+  if (!nickname.length) {
+    return 'Invalid username'
+  }
+
+  return '@' + nickname;
+}
+
+const app = express();
+
+app.use(cors());
+
+app.get('/task2c', (req, res) => {
+  const nickname = canonize(req.query.username);
+
+  res.send(nickname);
 });
 
 app.listen(3000, () => {
-	console.log('Your app listening on port 3000!');
+  console.log('Example app listening');
 });

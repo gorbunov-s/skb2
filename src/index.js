@@ -1,57 +1,27 @@
 import express from 'express';
 import cors from 'cors';
 
+function canonize(username) {
+  const ure = new RegExp('@?(https?:)?(\/\/)?(www.?)?(([a-zA-Z0-9-.]*)[^\/]*\/)?([@]*)?([a-zA-Z0-9._]*)', 'i');
+  const nickname = username.match(ure)[7];
+
+  if (!nickname.length) {
+    return 'Invalid username'
+  }
+
+  return '@' + nickname;
+}
+
 const app = express();
-
-
-function handleFullName(fullname) {
-    return fullname.replace(/\s\s+/g, ' ').split(' ')
-}
-
-function handleFirstName(namePart) {
-    return `${ namePart.charAt(0).toUpperCase() }${ namePart.slice(1).toLowerCase() }`
-}
-
-function handleOther(namePart) {
-    return `${ namePart.charAt(0).toUpperCase() }.`
-}
-
-function tests(queryFullname, fullnameArray) {
-    if (!queryFullname || fullnameArray.length > 3) {
-        return true;
-    }
-
-    for (let namePart = 0; namePart < fullnameArray.length; namePart++) {
-        if (!!~fullnameArray[namePart].search(/\d|[_/]/g)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
 
 app.use(cors());
 
-app.get('/task2B', (req, res) => {
-  res.header("Access-Control-Allow-Origin", "http://account.skill-branch.ru");
-  res.header("Access-Control-Allow-Methods", "GET");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-    const fullnameArray = handleFullName(req.query.fullname);
+app.get('/task2c', (req, res) => {
+  const nickname = canonize(req.query.username);
 
-    if (tests(req.query.fullname, fullnameArray)) {
-        res.send('Invalid fullname');
-    } else {
-        let refultFullname = handleFirstName(fullnameArray[fullnameArray.length - 1]);
-
-        fullnameArray.slice(0, -1).forEach((partName) => {
-            refultFullname += ` ${ handleOther(partName) }`;
-        });
-
-        res.send(refultFullname);
-    }
+  res.send(nickname);
 });
 
 app.listen(3000, () => {
-    console.log('Your app Listening on port 3000!');
+  console.log('Example app listening');
 });
